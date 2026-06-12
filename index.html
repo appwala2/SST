@@ -379,7 +379,7 @@
                     <div class="amount" id="amountExclusive">1,020,408</div>
                 </div>
                 <div class="result-row">
-                    <div class="label">Add: SST @ 15% <small>15% of base amount</small></div>
+                    <div class="label">Add: SST @ <span class="sst-label">15</span>% <small><span class="sst-label">15</span>% of base amount</small></div>
                     <div class="amount" id="sstAmount">153,061</div>
                 </div>
                 <div class="result-row highlight">
@@ -392,11 +392,11 @@
             <div class="deductions-section">
                 <div class="section-title">✂️ Deductions by Client</div>
                 <div class="result-row">
-                    <div class="label">Less: WHT @ 6% on Inclusive Amount <small>Client pays to Federal Govt</small></div>
+                    <div class="label">Less: WHT @ <span class="wht-label">6</span>% on Inclusive Amount <small>Client pays to Federal Govt</small></div>
                     <div class="amount negative" id="whtDeduction">−70,408</div>
                 </div>
                 <div class="result-row">
-                    <div class="label">Less: 20% SST (Client's Share) <small>Client pays to Sindh Govt</small></div>
+                    <div class="label">Less: <span class="client-share-label">20</span>% SST (Client's Share) <small>Client pays to Sindh Govt</small></div>
                     <div class="amount negative" id="clientSstDeduction">−30,612</div>
                 </div>
                 <div class="result-row result">
@@ -409,7 +409,7 @@
             <div class="payment-section">
                 <div class="section-title">💳 Your Tax Payments</div>
                 <div class="result-row">
-                    <div class="label">Less: 80% SST (Your Share to Bank) <small>You pay to Sindh Govt via bank</small></div>
+                    <div class="label">Less: <span class="our-share-label">80</span>% SST (Your Share to Bank) <small>You pay to Sindh Govt via bank</small></div>
                     <div class="amount negative" id="ourSstPayment">−122,449</div>
                 </div>
             </div>
@@ -434,10 +434,15 @@
         
         function calculate() {
             const netFee = parseFloat(document.getElementById('netFee').value) || 0;
-            const sstRate = (parseFloat(document.getElementById('sstRate').value) || 0) / 100;
-            const whtRate = (parseFloat(document.getElementById('whtRate').value) || 0) / 100;
-            const clientShare = (parseFloat(document.getElementById('clientShare').value) || 0) / 100;
-            const ourShare = (parseFloat(document.getElementById('ourShare').value) || 0) / 100;
+            const sstRateInput = parseFloat(document.getElementById('sstRate').value) || 0;
+            const whtRateInput = parseFloat(document.getElementById('whtRate').value) || 0;
+            const clientShareInput = parseFloat(document.getElementById('clientShare').value) || 0;
+            const ourShareInput = parseFloat(document.getElementById('ourShare').value) || 0;
+            
+            const sstRate = sstRateInput / 100;
+            const whtRate = whtRateInput / 100;
+            const clientShare = clientShareInput / 100;
+            const ourShare = ourShareInput / 100;
             
             const retentionRate = 1 - (whtRate * (1 + sstRate));
             const factor = 1 / retentionRate;
@@ -450,6 +455,13 @@
             const ourSstPayment = sstAmount * ourShare;
             const finalNetFee = netReceived - ourSstPayment;
             
+            // Update all percentage labels
+            document.querySelectorAll('.sst-label').forEach(el => el.textContent = sstRateInput.toFixed(2).replace(/\.?0+$/, ''));
+            document.querySelectorAll('.wht-label').forEach(el => el.textContent = whtRateInput.toFixed(2).replace(/\.?0+$/, ''));
+            document.querySelectorAll('.client-share-label').forEach(el => el.textContent = clientShareInput.toFixed(2).replace(/\.?0+$/, ''));
+            document.querySelectorAll('.our-share-label').forEach(el => el.textContent = ourShareInput.toFixed(2).replace(/\.?0+$/, ''));
+            
+            // Update Formula Section
             document.getElementById('retentionRate').textContent = formatDecimal(retentionRate);
             document.getElementById('factor').textContent = formatDecimal(factor);
             document.getElementById('whtVal').textContent = formatDecimal(whtRate, 2);
@@ -461,16 +473,20 @@
             document.getElementById('factorCalc2').textContent = formatDecimal(factor, 6);
             document.getElementById('exclusiveCalc').textContent = formatNumber(amountExclusive);
             
+            // Update Invoice Amounts
             document.getElementById('amountExclusive').textContent = formatNumber(amountExclusive);
             document.getElementById('sstAmount').textContent = formatNumber(sstAmount);
             document.getElementById('amountInclusive').textContent = formatNumber(amountInclusive);
             
+            // Update Deductions
             document.getElementById('whtDeduction').textContent = '−' + formatNumber(whtDeduction);
             document.getElementById('clientSstDeduction').textContent = '−' + formatNumber(clientSstDeduction);
             document.getElementById('netReceived').textContent = formatNumber(netReceived);
             
+            // Update Your Payments
             document.getElementById('ourSstPayment').textContent = '−' + formatNumber(ourSstPayment);
             
+            // Update Final
             document.getElementById('finalNetFee').textContent = formatNumber(finalNetFee);
             
             const matchStatus = document.getElementById('matchStatus');
